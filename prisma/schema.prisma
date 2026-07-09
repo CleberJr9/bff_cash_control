@@ -1,0 +1,121 @@
+// ----------------------------------------------------------------------------
+// Generator & Datasource
+// ----------------------------------------------------------------------------
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+  runtime      = "nodejs"
+}
+
+datasource db {
+  provider = "postgresql"
+  // No Prisma 7 a url NÃO vai aqui — está no prisma.config.ts
+}
+
+// ----------------------------------------------------------------------------
+// Enums
+// ----------------------------------------------------------------------------
+enum Category {
+  FOOD
+  TRANSPORT
+  HOUSING
+  LEISURE
+  SHOPPING
+  HEALTH
+}
+
+enum LegalDocumentType {
+  terms_of_use // termos de uso
+  privacy_policy // política de privacidade
+}
+
+enum Currency {
+  BRL
+  USD
+  EUR
+}
+
+// ----------------------------------------------------------------------------
+// User
+// ----------------------------------------------------------------------------
+model User {
+  user_id         String @id @default(uuid())
+  tx_name         String
+  tx_email        String @unique
+  tx_passwordHash String
+
+  // Orçamento e preferências (Settings embutido no User)
+  num_monthlyBudget  Int      @default(0) // em centavos
+  enum_currency      Currency @default(BRL)
+  bool_notifications Boolean  @default(true)
+
+  // Relações
+  expenses Expense[]
+  consents UserConsent[]
+
+  dt_createdAt DateTime @default(now())
+  dt_updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+// ----------------------------------------------------------------------------
+// Expense — o coração do app
+// ----------------------------------------------------------------------------
+model Expense {
+  expense_id     String   @id @default(uuid())
+  num_amount     Int // em centavos, sempre > 0 (validar no DTO)
+  enum_category  Category
+  tx_description String? // opcional
+  dt_date        DateTime @db.Date // o DIA em que o gasto aconteceu
+
+  userId String
+  user   User   @relation(fields: [userId], references: [user_id], onDelete: Cascade)
+
+  dt_createdAt DateTime @default(now()) // quando foi registrado (auditoria)
+  dt_updatedAt DateTime @updatedAt
+
+  @@index([userId, dt_createdAt]) // acelera filtros por período e agregações
+  @@map("expenses")
+}
+
+// ----------------------------------------------------------------------------
+// LegalDocument — versões dos termos e da política (LGPD)
+// ----------------------------------------------------------------------------
+model LegalDocument {
+  legal_id       String            @id @default(uuid())
+  enum_type      LegalDocumentType
+  tx_version     String // ex.: "1.0" ou "2025-07-01"
+  tx_content     String? // texto do documento (opcional)
+  tx_url         String? // ou link para o documento publicado
+  dt_publishedAt DateTime          @default(now())
+  bool_isActive  Boolean           @default(true) // marca a versão vigente
+
+  consents UserConsent[]
+
+  @@unique([enum_type, tx_version]) // não repete versão do mesmo tipo
+  @@index([enum_type, bool_isActive]) // encontra a versão vigente rápido
+  @@map("legal_documents")
+}
+
+// ----------------------------------------------------------------------------
+// UserConsent — registro imutável de aceite/revogação
+// ----------------------------------------------------------------------------
+model UserConsent {
+  userContesent_id String @id @default(uuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [user_id], onDelete: Cascade)
+
+  documentId String
+  document   LegalDocument @relation(fields: [documentId], references: [legal_id])
+
+  bool_accepted Boolean  @default(true) // true = aceite, false = revogação
+  dt_acceptedAt DateTime @default(now())
+  tx_ipAddress  String? // prova de consentimento (LGPD)
+  tx_userAgent  String? // dispositivo/app usado no aceite
+
+  @@index([userId, documentId])
+  @@map("user_consents")
+}
