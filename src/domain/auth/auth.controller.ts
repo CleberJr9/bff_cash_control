@@ -15,4 +15,9 @@ export class AuthController {
     const response = await this.authService.createUser(registerUser);
     return res.status(HttpStatus.OK).json(response);
   }
+
+  @Post('login')
+  async login(@Body() loginDto: LoginDto, @Res() res: Response) {
+    return 'login';
+  }
 }
