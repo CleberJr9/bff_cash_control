@@ -7,16 +7,18 @@ import {
 import { RegisterAuthDto } from './dto/register-auth.dto';
 import { AuthRepository } from './auth.repository';
 import { HashingService } from './hash/hashing.service';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly AuthRepository: AuthRepository,
+    private readonly JwtService: JwtService,
     @Inject(HashingService)
     private readonly hashService: HashingService,
   ) {}
 
-  async createUser(RegisterAuthDto: RegisterAuthDto): Promise<void> {
+  async createUser(RegisterAuthDto: RegisterAuthDto) {
     if (!RegisterAuthDto.terms) {
       throw new ConflictException('Terms and conditions not accepted');
     }
@@ -33,5 +35,28 @@ export class AuthService {
     if (!newUser) {
       throw new InternalServerErrorException('Error creating user');
     }
+    const payload = { userName: newUser.name, userId: newUser.id };
+
+    return {
+      acessToken: this.JwtService.sign(payload),
+    };
+  }
+
+  async login(email: string, password: string) {
+    const user = await this.AuthRepository.findByEmail(email);
+    if (!user) {
+      throw new ConflictException('User not found');
+    }
+    const isPasswordCorrect = await this.hashService.compare(
+      password,
+      user.tx_passwordHash,
+    );
+    if (!isPasswordCorrect) {
+      throw new ConflictException('Invalid password');
+    }
+    const payload = { userName: user.tx_name, userId: user.user_id };
+    return {
+      acessToken: this.JwtService.sign(payload),
+    };
   }
 }

@@ -4,10 +4,10 @@ export class LoginDto {
   @IsEmail()
   @IsString()
   @IsNotEmpty()
-  email!: string;
+  email: string;
   @IsString()
   @IsNotEmpty()
-  password!: string;
+  password: string;
   @IsString()
   @IsOptional()
   fcmToken?: string;

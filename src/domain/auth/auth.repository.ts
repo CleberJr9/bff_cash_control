@@ -4,6 +4,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export type User = {
   name: string;
   email: string;
+  id: string;
 };
 
 @Injectable()
@@ -37,7 +38,11 @@ export class AuthRepository {
           tx_name: name,
         },
       });
-      return { name: newUser.tx_name, email: newUser.tx_email };
+      return {
+        name: newUser.tx_name,
+        email: newUser.tx_email,
+        id: newUser.user_id,
+      };
     } catch (e) {
       // colocar um log aqui após configurar no projeto
       console.log(e);
