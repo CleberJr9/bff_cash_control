@@ -8,11 +8,13 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './jwt/jwt-strategy';
+import { LoggerModule } from 'src/infra/logger/logger.module';
 
 @Module({
   imports: [
     ConfigModule,
     PassportModule,
+    LoggerModule,
 
     JwtModule.registerAsync({
       imports: [ConfigModule],

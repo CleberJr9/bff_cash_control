@@ -23,5 +23,6 @@ import { AppLogger } from 'src/shared/logger/logger.service';
       useClass: LoggerService,
     },
   ],
+  exports: [AppLogger],
 })
 export class LoggerModule {}
