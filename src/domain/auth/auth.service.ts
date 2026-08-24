@@ -79,7 +79,7 @@ export class AuthService {
       'Criação do usuário bem sucedida',
     );
     return {
-      acessToken: this.JwtService.sign(payload),
+      accessToken: this.JwtService.sign(payload),
     };
   }
 
@@ -118,7 +118,7 @@ export class AuthService {
       'Login bem sucedido',
     );
     return {
-      acessToken: this.JwtService.sign(payload),
+      accessToken: this.JwtService.sign(payload),
     };
   }
 }
