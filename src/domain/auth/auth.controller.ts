@@ -11,7 +11,7 @@ export class AuthController {
   async register(@Body() registerUser: RegisterAuthDto) {
     const response = await this.authService.createUser(registerUser);
     return {
-      status: HttpStatus.OK,
+      statusCode: HttpStatus.OK,
       message: 'User created successfully',
       data: response,
     };
@@ -24,7 +24,7 @@ export class AuthController {
       loginDto.password,
     );
     return {
-      status: HttpStatus.OK,
+      statusCode: HttpStatus.OK,
       message: 'User signed in successfully',
       data: response,
     };

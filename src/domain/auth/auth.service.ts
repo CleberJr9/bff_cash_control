@@ -119,6 +119,7 @@ export class AuthService {
     );
     return {
       accessToken: this.JwtService.sign(payload),
+      nameUser: user.tx_name,
     };
   }
 }
