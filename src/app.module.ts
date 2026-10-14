@@ -5,6 +5,7 @@ import { AuthModule } from './domain/auth/auth.module';
 import { ExpenseModule } from './domain/expense/expense.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { LoggerModule } from './infra/logger/logger.module';
 
 @Module({
@@ -12,6 +13,7 @@ import { LoggerModule } from './infra/logger/logger.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    ThrottlerModule.forRoot([{ ttl: 60_000, limit: 60 }]),
     PrismaModule,
     AuthModule,
     ExpenseModule,

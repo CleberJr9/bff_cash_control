@@ -1,11 +1,5 @@
-import {
-  IsBoolean,
-  IsEmail,
-  IsNotEmpty,
-  IsString,
-  Matches,
-  MinLength,
-} from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { IsStrongPassword } from './is-strong-password.decorator';
 
 export class RegisterAuthDto {
   @IsString()
@@ -13,20 +7,8 @@ export class RegisterAuthDto {
   name: string;
   @IsEmail()
   @IsString()
+  @IsNotEmpty()
   email: string;
-  @IsString()
-  @MinLength(8)
-  @Matches(/[A-Z]/, {
-    message: 'A senha deve conter pelo menos uma letra maiúscula',
-  })
-  @Matches(/[0-9]/, {
-    message: 'A senha deve conter pelo menos um número',
-  })
-  @Matches(/[^A-Za-z0-9]/, {
-    message: 'A senha deve conter pelo menos um caractere especial',
-  })
+  @IsStrongPassword()
   password: string;
-
-  @IsBoolean()
-  terms: boolean;
 }

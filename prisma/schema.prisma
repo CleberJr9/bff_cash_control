@@ -51,13 +51,34 @@ model User {
   bool_notifications Boolean  @default(true)
 
   // Relações
-  expenses Expense[]
-  consents UserConsent[]
+  expenses       Expense[]
+  consents       UserConsent[]
+  passwordResets PasswordReset[]
 
   dt_createdAt DateTime @default(now())
   dt_updatedAt DateTime @updatedAt
 
   @@map("users")
+}
+
+// ----------------------------------------------------------------------------
+// PasswordReset — código de recuperação de senha enviado por email
+// ----------------------------------------------------------------------------
+model PasswordReset {
+  passwordReset_id String @id @default(uuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [user_id], onDelete: Cascade)
+
+  tx_codeHash  String // hash do código de 6 dígitos (nunca o código puro)
+  num_attempts Int       @default(0)
+  dt_expiresAt DateTime
+  dt_usedAt    DateTime?
+
+  dt_createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@map("password_resets")
 }
 
 // ----------------------------------------------------------------------------
