@@ -114,3 +114,22 @@ export function buildCategoryTotals(today: Date, expenses: ExpensePoint[]) {
     amount: totals.get(category) ?? 0,
   }));
 }
+
+const MONTH_NAMES_PT_BR = [
+  'Janeiro',
+  'Fevereiro',
+  'Março',
+  'Abril',
+  'Maio',
+  'Junho',
+  'Julho',
+  'Agosto',
+  'Setembro',
+  'Outubro',
+  'Novembro',
+  'Dezembro',
+];
+
+export function monthNamePtBr(date: Date): string {
+  return MONTH_NAMES_PT_BR[date.getUTCMonth()];
+}

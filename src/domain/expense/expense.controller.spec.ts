@@ -52,7 +52,11 @@ describe('ExpenseController', () => {
     it('delegates to the service using the current user id and wraps the result', async () => {
       const home = {
         user: { name: 'Ana' },
-        budget: { monthlyBudget: 50000, spentThisMonth: 1000 },
+        budget: {
+          monthlyBudget: 50000,
+          spentThisMonth: 1000,
+          currentMonth: 'Agosto',
+        },
         chart: { daily: [], weekly: [], monthly: [] },
         byCategory: [],
         transactions: [],

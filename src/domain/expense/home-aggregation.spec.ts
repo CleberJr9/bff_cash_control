@@ -3,6 +3,7 @@ import {
   buildDailyBuckets,
   buildMonthlyBuckets,
   buildWeeklyBuckets,
+  monthNamePtBr,
   startOfAggregationWindow,
   ExpensePoint,
 } from './home-aggregation';
@@ -112,5 +113,14 @@ describe('startOfAggregationWindow', () => {
     expect(startOfAggregationWindow(today)).toEqual(
       new Date(Date.UTC(2026, 2, 1)), // 2026-03-01
     );
+  });
+});
+
+describe('monthNamePtBr', () => {
+  it('returns the capitalized Portuguese name of the UTC month', () => {
+    expect(monthNamePtBr(today)).toBe('Agosto');
+    expect(monthNamePtBr(new Date(Date.UTC(2026, 0, 1)))).toBe('Janeiro');
+    expect(monthNamePtBr(new Date(Date.UTC(2026, 2, 31)))).toBe('Março');
+    expect(monthNamePtBr(new Date(Date.UTC(2026, 11, 31)))).toBe('Dezembro');
   });
 });

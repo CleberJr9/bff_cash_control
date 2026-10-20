@@ -8,6 +8,7 @@ import {
   buildDailyBuckets,
   buildMonthlyBuckets,
   buildWeeklyBuckets,
+  monthNamePtBr,
   startOfAggregationWindow,
   ExpensePoint,
 } from './home-aggregation';
@@ -70,6 +71,7 @@ export class ExpenseService {
       budget: {
         monthlyBudget: centsToReais(userInfo.monthlyBudget),
         spentThisMonth: centsToReais(spentThisMonth),
+        currentMonth: monthNamePtBr(now),
       },
       chart: {
         daily: withAmountInReais(buildDailyBuckets(now, points)),

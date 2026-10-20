@@ -70,6 +70,7 @@ describe('ExpenseService', () => {
       expect(result.budget).toEqual({
         monthlyBudget: 500,
         spentThisMonth: 10.5,
+        currentMonth: 'Agosto',
       });
       expect(result.chart.monthly[5]).toEqual({
         date: '2026-08-01',
