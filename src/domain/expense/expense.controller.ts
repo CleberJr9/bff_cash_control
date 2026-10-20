@@ -4,10 +4,12 @@ import {
   Get,
   HttpStatus,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { ExpenseService } from './expense.service';
 import { CreateExpenseDto } from './dto/create-expense.dto';
+import { ListExpensesQueryDto } from './dto/list-expenses-query.dto';
 import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard';
 import { CurrentUser } from '../auth/jwt/user/current-user.decorator';
 import { CurrentUserDto } from '../auth/jwt/user/current-user.dto';
@@ -29,6 +31,22 @@ export class ExpenseController {
     return {
       status: HttpStatus.CREATED,
       message: 'Expense created successfully',
+      data,
+    };
+  }
+
+  @Get()
+  async list(
+    @CurrentUser() user: CurrentUserDto,
+    @Query() query: ListExpensesQueryDto,
+  ) {
+    const data = await this.expenseService.listByPeriod(
+      user.userId,
+      query.period,
+    );
+    return {
+      status: HttpStatus.OK,
+      message: 'Expenses retrieved successfully',
       data,
     };
   }

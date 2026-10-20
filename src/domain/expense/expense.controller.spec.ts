@@ -3,6 +3,7 @@ import { ExpenseController } from './expense.controller';
 import { ExpenseService } from './expense.service';
 import { CurrentUserDto } from '../auth/jwt/user/current-user.dto';
 import { CreateExpenseDto } from './dto/create-expense.dto';
+import { ExpensePeriod } from './expense-period';
 
 describe('ExpenseController', () => {
   let service: jest.Mocked<ExpenseService>;
@@ -13,6 +14,7 @@ describe('ExpenseController', () => {
     service = {
       createExpense: jest.fn(),
       getHome: jest.fn(),
+      listByPeriod: jest.fn(),
     } as unknown as jest.Mocked<ExpenseService>;
 
     controller = new ExpenseController(service);
@@ -71,6 +73,35 @@ describe('ExpenseController', () => {
         status: HttpStatus.OK,
         message: 'Home data retrieved successfully',
         data: home,
+      });
+    });
+  });
+
+  describe('list', () => {
+    it('delegates the period to the service and wraps the result', async () => {
+      const list = {
+        period: 'week',
+        startDate: '2026-08-17',
+        endDate: '2026-08-23',
+        count: 0,
+        totalAmount: 0,
+        groups: [],
+      };
+      service.listByPeriod.mockResolvedValue(list as never);
+
+      const result = await controller.list(user, {
+        period: ExpensePeriod.WEEK,
+      });
+
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(service.listByPeriod).toHaveBeenCalledWith(
+        'user-1',
+        ExpensePeriod.WEEK,
+      );
+      expect(result).toEqual({
+        status: HttpStatus.OK,
+        message: 'Expenses retrieved successfully',
+        data: list,
       });
     });
   });

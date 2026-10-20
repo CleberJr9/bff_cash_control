@@ -3,6 +3,7 @@ import { ExpenseService } from './expense.service';
 import { ExpenseRepository } from './expense.repository';
 import { AppLogger } from 'src/shared/logger/logger.service';
 import { CreateExpenseDto } from './dto/create-expense.dto';
+import { ExpensePeriod } from './expense-period';
 
 describe('ExpenseService', () => {
   const now = new Date(Date.UTC(2026, 7, 23)); // 2026-08-23
@@ -16,6 +17,7 @@ describe('ExpenseService', () => {
       findUserBudgetInfo: jest.fn(),
       findSince: jest.fn(),
       findRecent: jest.fn(),
+      findBetween: jest.fn(),
       create: jest.fn(),
     } as unknown as jest.Mocked<ExpenseRepository>;
 
@@ -88,6 +90,7 @@ describe('ExpenseService', () => {
           description: 'Almoço',
           amount: 10.5,
           date: '2026-08-23',
+          createdAt: now.toISOString(),
         },
       ]);
     });
@@ -131,6 +134,103 @@ describe('ExpenseService', () => {
         description: null,
         amount: 5,
         date: '2026-08-20',
+        createdAt: now.toISOString(),
+      });
+    });
+  });
+
+  describe('listByPeriod', () => {
+    const makeExpense = (id: string, amount: number, date: string) => ({
+      expense_id: id,
+      num_amount: amount,
+      enum_category: 'FOOD',
+      tx_title: `Gasto ${id}`,
+      tx_description: null,
+      dt_date: new Date(`${date}T00:00:00.000Z`),
+      userId: 'user-1',
+      dt_createdAt: now,
+      dt_updatedAt: now,
+    });
+
+    it('queries the period range and returns expenses grouped by day with totals in reais', async () => {
+      repository.findBetween.mockResolvedValue([
+        makeExpense('e1', 1000, '2026-08-23'),
+        makeExpense('e2', 550, '2026-08-23'),
+        makeExpense('e3', 2000, '2026-08-18'),
+      ] as never);
+
+      const result = await service.listByPeriod(
+        'user-1',
+        ExpensePeriod.WEEK,
+        now,
+      );
+
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(repository.findBetween).toHaveBeenCalledWith(
+        'user-1',
+        new Date(Date.UTC(2026, 7, 17)),
+        new Date(Date.UTC(2026, 7, 23)),
+      );
+      expect(result.period).toBe('week');
+      expect(result.startDate).toBe('2026-08-17');
+      expect(result.endDate).toBe('2026-08-23');
+      expect(result.count).toBe(3);
+      expect(result.totalAmount).toBe(35.5);
+      expect(result.groups).toHaveLength(2);
+      expect(result.groups[0].date).toBe('23 Ago');
+      expect(result.groups[0].sumAmount).toBe(15.5);
+      expect(result.groups[0].expenses.map((e) => e.id)).toEqual(['e1', 'e2']);
+      expect(result.groups[0].expenses[0]).toEqual({
+        id: 'e1',
+        category: 'FOOD',
+        title: 'Gasto e1',
+        description: null,
+        amount: 10,
+        date: '2026-08-23',
+        createdAt: now.toISOString(),
+      });
+      expect(result.groups[1]).toMatchObject({
+        date: '18 Ago',
+        sumAmount: 20,
+      });
+    });
+
+    it('returns a single month group for the month period', async () => {
+      repository.findBetween.mockResolvedValue([
+        makeExpense('e1', 1000, '2026-08-23'),
+        makeExpense('e2', 2000, '2026-08-02'),
+      ] as never);
+
+      const result = await service.listByPeriod(
+        'user-1',
+        ExpensePeriod.MONTH,
+        now,
+      );
+
+      expect(result.groups).toHaveLength(1);
+      expect(result.groups[0]).toMatchObject({
+        date: 'Ago 2026',
+        sumAmount: 30,
+      });
+      expect(result.groups[0].expenses.map((e) => e.id)).toEqual(['e1', 'e2']);
+    });
+
+    it('returns empty groups and zero totals when there are no expenses', async () => {
+      repository.findBetween.mockResolvedValue([]);
+
+      const result = await service.listByPeriod(
+        'user-1',
+        ExpensePeriod.DAY,
+        now,
+      );
+
+      expect(result).toEqual({
+        period: 'day',
+        startDate: '2026-08-23',
+        endDate: '2026-08-23',
+        count: 0,
+        totalAmount: 0,
+        groups: [],
       });
     });
   });

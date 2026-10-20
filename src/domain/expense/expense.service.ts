@@ -11,7 +11,14 @@ import {
   monthNamePtBr,
   startOfAggregationWindow,
   ExpensePoint,
+  toDateKey,
 } from './home-aggregation';
+import {
+  ExpensePeriod,
+  formatGroupDate,
+  groupByPeriod,
+  periodRange,
+} from './expense-period';
 
 const RECENT_TRANSACTIONS_LIMIT = 10;
 
@@ -83,6 +90,45 @@ export class ExpenseService {
     };
   }
 
+  async listByPeriod(
+    userId: string,
+    period: ExpensePeriod,
+    now: Date = new Date(),
+  ) {
+    const { start, end } = periodRange(now, period);
+    const expenses = await this.expenseRepository.findBetween(
+      userId,
+      start,
+      end,
+    );
+
+    const groups = groupByPeriod(
+      expenses.map((expense) => ({
+        amount: expense.num_amount,
+        date: expense.dt_date,
+        expense,
+      })),
+      period,
+    );
+    const totalAmount = expenses.reduce(
+      (sum, expense) => sum + expense.num_amount,
+      0,
+    );
+
+    return {
+      period,
+      startDate: toDateKey(start),
+      endDate: toDateKey(end),
+      count: expenses.length,
+      totalAmount: centsToReais(totalAmount),
+      groups: groups.map((group) => ({
+        date: formatGroupDate(group.key, period),
+        sumAmount: centsToReais(group.sumAmount),
+        expenses: group.items.map((item) => this.toTransaction(item.expense)),
+      })),
+    };
+  }
+
   private toTransaction(expense: Expense) {
     return {
       id: expense.expense_id,
@@ -91,6 +137,7 @@ export class ExpenseService {
       description: expense.tx_description,
       amount: centsToReais(expense.num_amount),
       date: expense.dt_date.toISOString().slice(0, 10),
+      createdAt: expense.dt_createdAt.toISOString(),
     };
   }
 }

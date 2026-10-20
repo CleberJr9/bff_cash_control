@@ -46,6 +46,13 @@ export class ExpenseRepository {
     });
   }
 
+  async findBetween(userId: string, from: Date, to: Date): Promise<Expense[]> {
+    return this.prismaService.expense.findMany({
+      where: { userId, dt_date: { gte: from, lte: to } },
+      orderBy: [{ dt_date: 'desc' }, { dt_createdAt: 'desc' }],
+    });
+  }
+
   async create(userId: string, data: CreateExpenseData): Promise<Expense> {
     return this.prismaService.expense.create({
       data: {

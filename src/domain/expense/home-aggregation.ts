@@ -6,13 +6,13 @@ export type ExpensePoint = {
   date: Date;
 };
 
-function toUtcMidnight(date: Date): Date {
+export function toUtcMidnight(date: Date): Date {
   return new Date(
     Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
   );
 }
 
-function addDays(date: Date, days: number): Date {
+export function addDays(date: Date, days: number): Date {
   const result = new Date(date);
   result.setUTCDate(result.getUTCDate() + days);
   return result;
@@ -24,13 +24,13 @@ function addMonths(date: Date, months: number): Date {
   );
 }
 
-function startOfWeek(date: Date): Date {
+export function startOfWeek(date: Date): Date {
   const dayOfWeek = date.getUTCDay(); // 0 = Sunday .. 6 = Saturday
   const diffToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
   return addDays(date, -diffToMonday);
 }
 
-function toDateKey(date: Date): string {
+export function toDateKey(date: Date): string {
   return date.toISOString().slice(0, 10);
 }
 
@@ -115,7 +115,7 @@ export function buildCategoryTotals(today: Date, expenses: ExpensePoint[]) {
   }));
 }
 
-const MONTH_NAMES_PT_BR = [
+export const MONTH_NAMES_PT_BR = [
   'Janeiro',
   'Fevereiro',
   'Março',
