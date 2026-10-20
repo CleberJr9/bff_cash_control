@@ -88,6 +88,7 @@ model Expense {
   expense_id     String   @id @default(uuid())
   num_amount     Int // em centavos, sempre > 0 (validar no DTO)
   enum_category  Category
+  tx_title       String // título curto exibido na listagem
   tx_description String? // opcional
   dt_date        DateTime @db.Date // o DIA em que o gasto aconteceu
 

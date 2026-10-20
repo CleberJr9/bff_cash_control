@@ -11,6 +11,7 @@ export type UserBudgetInfo = {
 export type CreateExpenseData = {
   amount: number;
   category: Category;
+  title: string;
   description?: string;
   date: Date;
 };
@@ -51,6 +52,7 @@ export class ExpenseRepository {
         userId,
         num_amount: data.amount,
         enum_category: data.category,
+        tx_title: data.title,
         tx_description: data.description,
         dt_date: data.date,
       },

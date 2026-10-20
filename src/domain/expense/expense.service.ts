@@ -14,6 +14,15 @@ import {
 
 const RECENT_TRANSACTIONS_LIMIT = 10;
 
+// Valores são agregados em centavos (inteiros) e convertidos para reais só na resposta.
+function centsToReais(cents: number): number {
+  return cents / 100;
+}
+
+function withAmountInReais<T extends { amount: number }>(items: T[]): T[] {
+  return items.map((item) => ({ ...item, amount: centsToReais(item.amount) }));
+}
+
 @Injectable()
 export class ExpenseService {
   constructor(
@@ -29,6 +38,7 @@ export class ExpenseService {
     const expense = await this.expenseRepository.create(userId, {
       amount: dto.amount,
       category: dto.category,
+      title: dto.title,
       description: dto.description,
       date: new Date(dto.date),
     });
@@ -58,15 +68,15 @@ export class ExpenseService {
     return {
       user: { name: userInfo.name },
       budget: {
-        monthlyBudget: userInfo.monthlyBudget,
-        spentThisMonth,
+        monthlyBudget: centsToReais(userInfo.monthlyBudget),
+        spentThisMonth: centsToReais(spentThisMonth),
       },
       chart: {
-        daily: buildDailyBuckets(now, points),
-        weekly: buildWeeklyBuckets(now, points),
-        monthly,
+        daily: withAmountInReais(buildDailyBuckets(now, points)),
+        weekly: withAmountInReais(buildWeeklyBuckets(now, points)),
+        monthly: withAmountInReais(monthly),
       },
-      byCategory: buildCategoryTotals(now, points),
+      byCategory: withAmountInReais(buildCategoryTotals(now, points)),
       transactions: recent.map((expense) => this.toTransaction(expense)),
     };
   }
@@ -75,8 +85,9 @@ export class ExpenseService {
     return {
       id: expense.expense_id,
       category: expense.enum_category,
+      title: expense.tx_title,
       description: expense.tx_description,
-      amount: expense.num_amount,
+      amount: centsToReais(expense.num_amount),
       date: expense.dt_date.toISOString().slice(0, 10),
     };
   }

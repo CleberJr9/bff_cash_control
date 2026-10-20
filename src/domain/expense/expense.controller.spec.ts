@@ -23,11 +23,13 @@ describe('ExpenseController', () => {
       const dto: CreateExpenseDto = {
         amount: 500,
         category: 'TRANSPORT',
+        title: 'Uber',
         date: '2026-08-20',
       };
       const created = {
         id: 'e1',
         category: 'TRANSPORT',
+        title: 'Uber',
         description: null,
         amount: 500,
         date: '2026-08-20',

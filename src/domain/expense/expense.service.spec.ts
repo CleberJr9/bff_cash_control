@@ -38,11 +38,12 @@ describe('ExpenseService', () => {
       );
     });
 
-    it('assembles user, budget, chart, byCategory and transactions from the repository data', async () => {
+    it('assembles user, budget, chart, byCategory and transactions with amounts in reais', async () => {
       const expense = {
         expense_id: 'e1',
-        num_amount: 1000,
+        num_amount: 1050,
         enum_category: 'FOOD',
+        tx_title: 'Restaurante',
         tx_description: 'Almoço',
         dt_date: new Date('2026-08-23T00:00:00.000Z'),
         userId: 'user-1',
@@ -67,23 +68,24 @@ describe('ExpenseService', () => {
       /* eslint-enable @typescript-eslint/unbound-method */
       expect(result.user).toEqual({ name: 'Ana' });
       expect(result.budget).toEqual({
-        monthlyBudget: 50000,
-        spentThisMonth: 1000,
+        monthlyBudget: 500,
+        spentThisMonth: 10.5,
       });
       expect(result.chart.monthly[5]).toEqual({
-        month: '2026-08',
-        amount: 1000,
+        date: '2026-08-01',
+        amount: 10.5,
       });
       expect(result.byCategory).toContainEqual({
         category: 'FOOD',
-        amount: 1000,
+        amount: 10.5,
       });
       expect(result.transactions).toEqual([
         {
           id: 'e1',
           category: 'FOOD',
+          title: 'Restaurante',
           description: 'Almoço',
-          amount: 1000,
+          amount: 10.5,
           date: '2026-08-23',
         },
       ]);
@@ -91,11 +93,12 @@ describe('ExpenseService', () => {
   });
 
   describe('createExpense', () => {
-    it('creates the expense through the repository and returns it mapped', async () => {
+    it('creates the expense through the repository and returns it mapped with amount in reais', async () => {
       repository.create.mockResolvedValue({
         expense_id: 'e2',
         num_amount: 500,
         enum_category: 'TRANSPORT',
+        tx_title: 'Uber',
         tx_description: null,
         dt_date: new Date('2026-08-20T00:00:00.000Z'),
         userId: 'user-1',
@@ -106,6 +109,7 @@ describe('ExpenseService', () => {
       const dto: CreateExpenseDto = {
         amount: 500,
         category: 'TRANSPORT',
+        title: 'Uber',
         date: '2026-08-20',
       };
 
@@ -115,14 +119,16 @@ describe('ExpenseService', () => {
       expect(repository.create).toHaveBeenCalledWith('user-1', {
         amount: 500,
         category: 'TRANSPORT',
+        title: 'Uber',
         description: undefined,
         date: new Date('2026-08-20'),
       });
       expect(result).toEqual({
         id: 'e2',
         category: 'TRANSPORT',
+        title: 'Uber',
         description: null,
-        amount: 500,
+        amount: 5,
         date: '2026-08-20',
       });
     });

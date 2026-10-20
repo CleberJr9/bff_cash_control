@@ -53,10 +53,10 @@ describe('buildWeeklyBuckets', () => {
     const result = buildWeeklyBuckets(today, expenses);
 
     expect(result).toEqual([
-      { weekStart: '2026-07-27', weekEnd: '2026-08-02', amount: 200 },
-      { weekStart: '2026-08-03', weekEnd: '2026-08-09', amount: 0 },
-      { weekStart: '2026-08-10', weekEnd: '2026-08-16', amount: 300 },
-      { weekStart: '2026-08-17', weekEnd: '2026-08-23', amount: 1500 },
+      { date: '2026-07-27', amount: 200 },
+      { date: '2026-08-03', amount: 0 },
+      { date: '2026-08-10', amount: 300 },
+      { date: '2026-08-17', amount: 1500 },
     ]);
   });
 });
@@ -75,12 +75,12 @@ describe('buildMonthlyBuckets', () => {
     const result = buildMonthlyBuckets(today, expenses);
 
     expect(result).toEqual([
-      { month: '2026-03', amount: 0 },
-      { month: '2026-04', amount: 0 },
-      { month: '2026-05', amount: 0 },
-      { month: '2026-06', amount: 150 },
-      { month: '2026-07', amount: 200 },
-      { month: '2026-08', amount: 1800 },
+      { date: '2026-03-01', amount: 0 },
+      { date: '2026-04-01', amount: 0 },
+      { date: '2026-05-01', amount: 0 },
+      { date: '2026-06-01', amount: 150 },
+      { date: '2026-07-01', amount: 200 },
+      { date: '2026-08-01', amount: 1800 },
     ]);
   });
 });

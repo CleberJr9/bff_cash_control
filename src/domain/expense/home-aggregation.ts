@@ -62,18 +62,14 @@ export function buildDailyBuckets(today: Date, expenses: ExpensePoint[]) {
 export function buildWeeklyBuckets(today: Date, expenses: ExpensePoint[]) {
   const currentWeekStart = startOfWeek(toUtcMidnight(today));
 
-  const buckets: { weekStart: string; weekEnd: string; amount: number }[] = [];
+  const buckets: { date: string; amount: number }[] = [];
   for (let i = 3; i >= 0; i--) {
     const weekStart = addDays(currentWeekStart, -7 * i);
     const weekEnd = addDays(weekStart, 6);
     const amount = expenses
       .filter((expense) => expense.date >= weekStart && expense.date <= weekEnd)
       .reduce((sum, expense) => sum + expense.amount, 0);
-    buckets.push({
-      weekStart: toDateKey(weekStart),
-      weekEnd: toDateKey(weekEnd),
-      amount,
-    });
+    buckets.push({ date: toDateKey(weekStart), amount });
   }
   return buckets;
 }
@@ -86,11 +82,14 @@ export function buildMonthlyBuckets(today: Date, expenses: ExpensePoint[]) {
     totalsByMonth.set(key, (totalsByMonth.get(key) ?? 0) + expense.amount);
   }
 
-  const buckets: { month: string; amount: number }[] = [];
+  const buckets: { date: string; amount: number }[] = [];
   for (let i = 5; i >= 0; i--) {
     const monthStart = addMonths(base, -i);
     const key = toMonthKey(monthStart);
-    buckets.push({ month: key, amount: totalsByMonth.get(key) ?? 0 });
+    buckets.push({
+      date: toDateKey(monthStart),
+      amount: totalsByMonth.get(key) ?? 0,
+    });
   }
   return buckets;
 }
