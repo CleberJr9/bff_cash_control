@@ -27,6 +27,10 @@ function centsToReais(cents: number): number {
   return cents / 100;
 }
 
+function sumAmounts(items: { amount: number }[]): number {
+  return items.reduce((sum, item) => sum + item.amount, 0);
+}
+
 function withAmountInReais<T extends { amount: number }>(items: T[]): T[] {
   return items.map((item) => ({ ...item, amount: centsToReais(item.amount) }));
 }
@@ -70,6 +74,8 @@ export class ExpenseService {
       date: expense.dt_date,
     }));
 
+    const daily = buildDailyBuckets(now, points);
+    const weekly = buildWeeklyBuckets(now, points);
     const monthly = buildMonthlyBuckets(now, points);
     const spentThisMonth = monthly[monthly.length - 1].amount;
 
@@ -81,9 +87,14 @@ export class ExpenseService {
         currentMonth: monthNamePtBr(now),
       },
       chart: {
-        daily: withAmountInReais(buildDailyBuckets(now, points)),
-        weekly: withAmountInReais(buildWeeklyBuckets(now, points)),
+        daily: withAmountInReais(daily),
+        weekly: withAmountInReais(weekly),
         monthly: withAmountInReais(monthly),
+        totals: {
+          daily: centsToReais(sumAmounts(daily)),
+          weekly: centsToReais(sumAmounts(weekly)),
+          monthly: centsToReais(sumAmounts(monthly)),
+        },
       },
       byCategory: withAmountInReais(buildCategoryTotals(now, points)),
       transactions: recent.map((expense) => this.toTransaction(expense)),

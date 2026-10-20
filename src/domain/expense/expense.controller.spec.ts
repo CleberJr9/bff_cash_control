@@ -59,7 +59,12 @@ describe('ExpenseController', () => {
           spentThisMonth: 1000,
           currentMonth: 'Agosto',
         },
-        chart: { daily: [], weekly: [], monthly: [] },
+        chart: {
+          daily: [],
+          weekly: [],
+          monthly: [],
+          totals: { daily: 0, weekly: 0, monthly: 0 },
+        },
         byCategory: [],
         transactions: [],
       };

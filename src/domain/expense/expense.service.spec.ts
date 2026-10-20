@@ -56,7 +56,13 @@ describe('ExpenseService', () => {
         name: 'Ana',
         monthlyBudget: 50000,
       });
-      repository.findSince.mockResolvedValue([expense] as never);
+      const julyExpense = {
+        ...expense,
+        expense_id: 'e0',
+        num_amount: 2000,
+        dt_date: new Date('2026-07-10T00:00:00.000Z'),
+      };
+      repository.findSince.mockResolvedValue([julyExpense, expense] as never);
       repository.findRecent.mockResolvedValue([expense] as never);
 
       const result = await service.getHome('user-1', now);
@@ -77,6 +83,11 @@ describe('ExpenseService', () => {
       expect(result.chart.monthly[5]).toEqual({
         date: '2026-08-01',
         amount: 10.5,
+      });
+      expect(result.chart.totals).toEqual({
+        daily: 10.5,
+        weekly: 10.5,
+        monthly: 30.5,
       });
       expect(result.byCategory).toContainEqual({
         category: 'FOOD',
