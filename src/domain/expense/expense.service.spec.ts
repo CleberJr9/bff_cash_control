@@ -82,6 +82,7 @@ describe('ExpenseService', () => {
       });
       expect(result.chart.monthly[5]).toEqual({
         date: '2026-08-01',
+        label: 'Ago',
         amount: 10.5,
       });
       expect(result.chart.totals).toEqual({

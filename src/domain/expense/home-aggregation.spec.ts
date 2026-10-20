@@ -32,12 +32,12 @@ describe('buildDailyBuckets', () => {
     const result = buildDailyBuckets(today, expenses);
 
     expect(result).toEqual([
-      { date: '2026-08-18', amount: 500 },
-      { date: '2026-08-19', amount: 0 },
-      { date: '2026-08-20', amount: 0 },
-      { date: '2026-08-21', amount: 0 },
-      { date: '2026-08-22', amount: 0 },
-      { date: '2026-08-23', amount: 1000 },
+      { date: '2026-08-18', label: 'Ter', amount: 500 },
+      { date: '2026-08-19', label: 'Qua', amount: 0 },
+      { date: '2026-08-20', label: 'Qui', amount: 0 },
+      { date: '2026-08-21', label: 'Sex', amount: 0 },
+      { date: '2026-08-22', label: 'Sáb', amount: 0 },
+      { date: '2026-08-23', label: 'Dom', amount: 1000 },
     ]);
   });
 });
@@ -54,10 +54,10 @@ describe('buildWeeklyBuckets', () => {
     const result = buildWeeklyBuckets(today, expenses);
 
     expect(result).toEqual([
-      { date: '2026-07-27', amount: 200 },
-      { date: '2026-08-03', amount: 0 },
-      { date: '2026-08-10', amount: 300 },
-      { date: '2026-08-17', amount: 1500 },
+      { date: '2026-07-27', label: '27 Jul', amount: 200 },
+      { date: '2026-08-03', label: '03 Ago', amount: 0 },
+      { date: '2026-08-10', label: '10 Ago', amount: 300 },
+      { date: '2026-08-17', label: '17 Ago', amount: 1500 },
     ]);
   });
 });
@@ -76,12 +76,12 @@ describe('buildMonthlyBuckets', () => {
     const result = buildMonthlyBuckets(today, expenses);
 
     expect(result).toEqual([
-      { date: '2026-03-01', amount: 0 },
-      { date: '2026-04-01', amount: 0 },
-      { date: '2026-05-01', amount: 0 },
-      { date: '2026-06-01', amount: 150 },
-      { date: '2026-07-01', amount: 200 },
-      { date: '2026-08-01', amount: 1800 },
+      { date: '2026-03-01', label: 'Mar', amount: 0 },
+      { date: '2026-04-01', label: 'Abr', amount: 0 },
+      { date: '2026-05-01', label: 'Mai', amount: 0 },
+      { date: '2026-06-01', label: 'Jun', amount: 150 },
+      { date: '2026-07-01', label: 'Jul', amount: 200 },
+      { date: '2026-08-01', label: 'Ago', amount: 1800 },
     ]);
   });
 });

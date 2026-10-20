@@ -38,6 +38,22 @@ function toMonthKey(date: Date): string {
   return date.toISOString().slice(0, 7);
 }
 
+const WEEKDAY_NAMES_PT_BR = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+
+function shortMonthName(date: Date): string {
+  return MONTH_NAMES_PT_BR[date.getUTCMonth()].slice(0, 3);
+}
+
+// Rótulos do eixo do gráfico: "Seg" (dia), "17 Ago" (semana), "Ago" (mês)
+function dayLabel(date: Date): string {
+  return WEEKDAY_NAMES_PT_BR[date.getUTCDay()];
+}
+
+function weekLabel(weekStart: Date): string {
+  const day = String(weekStart.getUTCDate()).padStart(2, '0');
+  return `${day} ${shortMonthName(weekStart)}`;
+}
+
 export function startOfAggregationWindow(today: Date): Date {
   return addMonths(toUtcMidnight(today), -5);
 }
@@ -50,11 +66,15 @@ export function buildDailyBuckets(today: Date, expenses: ExpensePoint[]) {
     totalsByDay.set(key, (totalsByDay.get(key) ?? 0) + expense.amount);
   }
 
-  const buckets: { date: string; amount: number }[] = [];
+  const buckets: { date: string; label: string; amount: number }[] = [];
   for (let i = 5; i >= 0; i--) {
     const day = addDays(base, -i);
     const key = toDateKey(day);
-    buckets.push({ date: key, amount: totalsByDay.get(key) ?? 0 });
+    buckets.push({
+      date: key,
+      label: dayLabel(day),
+      amount: totalsByDay.get(key) ?? 0,
+    });
   }
   return buckets;
 }
@@ -62,14 +82,18 @@ export function buildDailyBuckets(today: Date, expenses: ExpensePoint[]) {
 export function buildWeeklyBuckets(today: Date, expenses: ExpensePoint[]) {
   const currentWeekStart = startOfWeek(toUtcMidnight(today));
 
-  const buckets: { date: string; amount: number }[] = [];
+  const buckets: { date: string; label: string; amount: number }[] = [];
   for (let i = 3; i >= 0; i--) {
     const weekStart = addDays(currentWeekStart, -7 * i);
     const weekEnd = addDays(weekStart, 6);
     const amount = expenses
       .filter((expense) => expense.date >= weekStart && expense.date <= weekEnd)
       .reduce((sum, expense) => sum + expense.amount, 0);
-    buckets.push({ date: toDateKey(weekStart), amount });
+    buckets.push({
+      date: toDateKey(weekStart),
+      label: weekLabel(weekStart),
+      amount,
+    });
   }
   return buckets;
 }
@@ -82,12 +106,13 @@ export function buildMonthlyBuckets(today: Date, expenses: ExpensePoint[]) {
     totalsByMonth.set(key, (totalsByMonth.get(key) ?? 0) + expense.amount);
   }
 
-  const buckets: { date: string; amount: number }[] = [];
+  const buckets: { date: string; label: string; amount: number }[] = [];
   for (let i = 5; i >= 0; i--) {
     const monthStart = addMonths(base, -i);
     const key = toMonthKey(monthStart);
     buckets.push({
       date: toDateKey(monthStart),
+      label: shortMonthName(monthStart),
       amount: totalsByMonth.get(key) ?? 0,
     });
   }
